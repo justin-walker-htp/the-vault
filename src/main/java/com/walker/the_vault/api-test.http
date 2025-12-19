@@ -1,0 +1,10 @@
+### Register a new user
+POST http://localhost:8080/api/users
+Content-Type: application/json
+
+{
+  "username": "walker_ranger2",
+  "password": "securePass123",
+  "email": "walker2@texas.com",
+  "role": "ADMIN"
+}

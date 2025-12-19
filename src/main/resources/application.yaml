@@ -1,3 +1,21 @@
 spring:
   application:
     name: the-vault
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/vault_db
+    username: vault_user
+    password: secret_password
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+
+  docker:
+    compose:
+      enabled: false
