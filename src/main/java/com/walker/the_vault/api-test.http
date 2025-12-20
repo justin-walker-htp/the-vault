@@ -3,8 +3,8 @@ POST http://localhost:8080/api/users
 Content-Type: application/json
 
 {
-  "username": "walker_ranger2",
+  "username": "walker_agent_007",
   "password": "securePass123",
-  "email": "walker2@texas.com",
+  "email": "walker_agent_007@texas.com",
   "role": "ADMIN"
 }
