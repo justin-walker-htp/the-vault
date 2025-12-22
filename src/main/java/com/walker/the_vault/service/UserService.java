@@ -23,7 +23,8 @@ public class UserService {
         }
 
         // Hash password before saving
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        String encodedPassword = passwordEncoder.encode(user.getPassword());
+        user.setPassword(encodedPassword);
 
         return userRepository.save(user);
     }
