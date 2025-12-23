@@ -43,3 +43,6 @@ Authorization: Bearer {{auth_token}}
 ### 2. GET all Secrets (Withdrawal)
 GET http://localhost:8080/api/credentials
 Authorization: Bearer {{auth_token}}
+
+### 3. UPDATE a Secret (Change password)
+# REPLACE UUID BELOW with the actual ID you got from the GET request!
