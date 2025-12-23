@@ -9,34 +9,12 @@ Content-Type: application/json
   "role": "ADMIN"
 }
 
-### Register Agent 010
-POST http://localhost:8080/api/users
-Content-Type: application/json
-
-{
-  "username": "walker_agent_010",
-  "password": "securePass123",
-  "email": "agent010@texas.com",
-  "role": "ADMIN"
-}
-
-### Register Agent 011
-POST http://localhost:8080/api/users
-Content-Type: application/json
-
-{
-  "username": "walker_agent_012",
-  "password": "securePass123",
-  "email": "agent012@texas.com",
-  "role": "ADMIN"
-}
-
-### Login Agent 011
+### Login user
 POST http://localhost:8080/api/auth/login
 Content-Type: application/json
 
 {
-  "username": "walker_agent_012",
+  "username": "walker_agent_007",
   "password": "securePass123"
 }
 
@@ -47,4 +25,21 @@ Content-Type: application/json
 
 ### 2. Try to access VIP section WITHOUT Token (Should fail)
 GET https://localhost:8080/api/user/me
+Authorization: Bearer {{auth_token}}
+
+### ---------------- VAULT OPERATIONS ----------------
+
+### 1. SAVE a Secret (Deposit)
+POST http://localhost:8080/api/credentials
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "url": "https://netflix.com",
+  "username": "movie_watcher",
+  "encryptedPassword": "password123"
+}
+
+### 2. GET all Secrets (Withdrawal)
+GET http://localhost:8080/api/credentials
 Authorization: Bearer {{auth_token}}

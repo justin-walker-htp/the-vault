@@ -3,6 +3,7 @@ package com.walker.the_vault.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -24,17 +25,12 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        // ---------------------------------------------------------
-                        // THE CRITICAL LINE: Allow BOTH Login and Registration
-                        // ---------------------------------------------------------
-                        // Explicitly list the login URL and allow ALL POST requests to it
-                        .requestMatchers("/api/users").permitAll()
-                        .requestMatchers("/api/auth/login").permitAll()
-                        .anyRequest().authenticated()
+                        .requestMatchers("/api/auth/**").permitAll() // Login is public
+                        .requestMatchers(HttpMethod.POST, "/api/users").permitAll() // <--- ADD THIS LINE (Registration is public)
+                        .requestMatchers("/error").permitAll() // Allow error messages
+                        .anyRequest().authenticated() // Everything else is locked
                 )
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
