@@ -11,7 +11,7 @@ function App() {
     // 1. Handle Registration
     const handleRegister = async () => {
         try {
-            await axios.post('/api/auth/register', { username, password })
+            await axios.post('http://localhost:8080/api/auth/register', { username, password })
             setError('Registration successful! Please login.')
         } catch (err) {
             setError('Registration failed. Username might be taken.')

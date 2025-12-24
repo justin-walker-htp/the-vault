@@ -3,11 +3,10 @@ package com.walker.the_vault.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -23,14 +22,22 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable)
+                // 1. ENABLE CORS (Uses your CorsConfig bean)
+                .cors(Customizer.withDefaults())
+                // 2. DISABLE CSRF (Crucial for POST requests)
+                .csrf(csrf -> csrf.disable())
+                // 3. DEFINE RULES
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll() // Login is public
-                        .requestMatchers(HttpMethod.POST, "/api/users").permitAll() // <--- ADD THIS LINE (Registration is public)
-                        .requestMatchers("/error").permitAll() // Allow error messages
-                        .anyRequest().authenticated() // Everything else is locked
+                        // Explicitly allow Auth endpoints
+                        .requestMatchers("/api/auth/**").permitAll()
+                        // Allow error pages (helps debugging)
+                        .requestMatchers("/error").permitAll()
+                        // Lock everything else
+                        .anyRequest().authenticated()
                 )
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
