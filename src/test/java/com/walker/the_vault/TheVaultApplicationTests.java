@@ -9,7 +9,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
+@SpringBootTest(properties = "VAULT_ENCRYPTION_KEY=TestingKey12345678901234567890")
 class TheVaultApplicationTests {
 
 	@Autowired
