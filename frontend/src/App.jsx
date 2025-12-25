@@ -14,13 +14,16 @@ function App() {
     const [newUsername, setNewUsername] = useState('')
     const [newPassword, setNewPassword] = useState('')
 
+    // NEW: Track which password is currently visible (null = none)
+    const [revealedId, setRevealedId] = useState(null)
+
     // --- AUTHENTICATION ---
     const handleRegister = async () => {
         try {
             await axios.post('http://localhost:8080/api/auth/register', { username, password })
             setError('Registration successful! Please login.')
         } catch (err) {
-            setError('Registration failed. Username might be taken.')
+            setError(err.response?.data?.message || 'Registration failed.')
         }
     }
 
@@ -37,7 +40,6 @@ function App() {
 
     // --- DASHBOARD ACTIONS ---
 
-    // 1. Fetch Secrets
     useEffect(() => {
         if (token) fetchSecrets()
     }, [token])
@@ -53,7 +55,6 @@ function App() {
         }
     }
 
-    // 2. Add Secret
     const handleAddSecret = async () => {
         try {
             await axios.post('http://localhost:8080/api/credentials',
@@ -73,19 +74,24 @@ function App() {
         }
     }
 
-    // 3. Delete Secret (NEW FUNCTION)
     const handleDelete = async (id) => {
         if (!window.confirm("Are you sure you want to delete this secret?")) return
-
         try {
             await axios.delete(`http://localhost:8080/api/credentials/${id}`, {
                 headers: { Authorization: `Bearer ${token}` }
             })
-            // Remove it from the list immediately (Optimistic update)
             setSecrets(secrets.filter(secret => secret.id !== id))
         } catch (err) {
-            console.error("Failed to delete", err)
             alert("Failed to delete secret")
+        }
+    }
+
+    // NEW: Toggle visibility of a specific password
+    const toggleReveal = (id) => {
+        if (revealedId === id) {
+            setRevealedId(null) // Hide if already open
+        } else {
+            setRevealedId(id) // Show this one
         }
     }
 
@@ -127,11 +133,27 @@ function App() {
                             <div className="card-content">
                                 <h3>{secret.url}</h3>
                                 <p><strong>User:</strong> {secret.username}</p>
-                                <p><strong>Pass:</strong> {secret.encryptedPassword}</p>
+
+                                <div className="password-row">
+                                    <strong>Pass:</strong>
+                                    {/* LOGIC: Is this card revealed? Show text. If not, show dots. */}
+                                    <span className="password-text">
+                                        {revealedId === secret.id ? secret.encryptedPassword : "••••••••••••"}
+                                    </span>
+                                    <button
+                                        className="icon-btn"
+                                        onClick={() => toggleReveal(secret.id)}
+                                        title={revealedId === secret.id ? "Hide" : "Show"}
+                                    >
+                                        {revealedId === secret.id ? "🙈" : "👁️"}
+                                    </button>
+                                </div>
                             </div>
+
                             <button
                                 className="delete-btn"
                                 onClick={() => handleDelete(secret.id)}
+                                title="Delete Secret"
                             >
                                 🗑️
                             </button>
@@ -166,7 +188,6 @@ function App() {
                     <button onClick={handleRegister}>Register</button>
                 </div>
             </div>
-
             {error && <p style={{color: 'red'}}>{error}</p>}
         </div>
     )
