@@ -2,26 +2,28 @@ package com.walker.the_vault.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "credentials")
-public class Credential extends BaseEntity {
+public class Credential {
 
-    @Column(nullable = false)
-    private String url; // "netflix.com"
+    @Id
+    @GeneratedValue
+    private Integer id;
 
-    @Column(nullable = false)
-    private String username; // "chill_watcher_99"
-
-    @Column(nullable = false)
-    private String encryptedPassword; // Never store this in plain text
+    private String url;
+    private String username;
+    private String encryptedPassword;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    @JsonIgnore
-    private User user; // The owner of this secret
+    @JoinColumn(name = "user_id")
+    @JsonIgnore // Prevents infinite recursion
+    private User user;
 }

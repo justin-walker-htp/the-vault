@@ -5,18 +5,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
-import java.util.UUID;
+// import java.util.UUID; // <--- REMOVED
 
 @Repository
-public interface UserRepository extends JpaRepository<User, UUID> {
+public interface UserRepository extends JpaRepository<User, Integer> { // <--- CHANGED UUID TO INTEGER
 
     Optional<User> findByUsername(String username);
 
-    // SELECT * FROM users WHERE email = ?
-    Optional<User> findByEmail(String email);
-
-    // SELECT CASE WHEN COUNT(u) > 0 THEN true ELSE false END FROM User u WHERE u.username = ?
     boolean existsByUsername(String username);
 
-    boolean existsByEmail(String email);
+    // REMOVED references to "email" because User.java no longer has an email field
 }
