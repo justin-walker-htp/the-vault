@@ -3,8 +3,64 @@ POST http://localhost:8080/api/users
 Content-Type: application/json
 
 {
-  "username": "walker_ranger2",
+  "username": "walker_agent_007",
   "password": "securePass123",
-  "email": "walker2@texas.com",
+  "email": "walker_agent_007@texas.com",
   "role": "ADMIN"
 }
+
+### Login user
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "walker_agent_007",
+  "password": "securePass123"
+}
+
+> {%
+    // This script automatically saves the token from the response into a variable
+    client.global.set("auth_token", response.body.token);
+ %}
+
+### 2. Try to access VIP section WITHOUT Token (Should fail)
+GET https://localhost:8080/api/user/me
+Authorization: Bearer {{auth_token}}
+
+### ---------------- VAULT OPERATIONS ----------------
+
+### 1. SAVE a Secret (Deposit)
+POST http://localhost:8080/api/credentials
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "url": "https://netflix.com",
+  "username": "movie_watcher",
+  "encryptedPassword": "password123"
+}
+
+### 2. GET all Secrets (Withdrawal)
+GET http://localhost:8080/api/credentials
+Authorization: Bearer {{auth_token}}
+
+### 3. UPDATE a Secret (Change password)
+# REPLACE UUID BELOW with the actual ID you got from the GET request!
+PUT http://localhost:8080/api/credentials/06417b91-c735-47b1-8909-08abb998fe9b
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "url": "https://netflix.com",
+  "username": "movie_watcher_updated",
+  "encryptedPassword": "NEW_PASSWORD_456"
+}
+
+### 4. DELETE a Secret
+# REPLACE UUID BELOW with the same ID
+DELETE http://localhost:8080/api/credentials/06417b91-c735-47b1-8909-08abb998fe9b
+Authorization: Bearer {{auth_token}}
+
+### 5. Verify Deletion (Should return empty list)
+GET https://localhost:8080/api/credentials
+Authorization: Bearer {{auth_token}}
