@@ -67,7 +67,7 @@ function App() {
                 {
                     url: newUrl,
                     username: newUsername,
-                    password: newPassword // Note: Send as 'password', backend encrypts it
+                    encryptedPassword: newPassword // Note: Send as 'password', backend encrypts it
                 }
             )
             fetchSecrets()
