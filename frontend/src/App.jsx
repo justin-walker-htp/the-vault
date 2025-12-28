@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import api from './api/axiosConfig'; // <--- CHANGE 1: Import your custom tool
 import './App.css'
 
 function App() {
-    const [token, setToken] = useState('')
+    const [token, setToken] = useState(localStorage.getItem('token') || '') // <--- TIP: Load from storage on refresh
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
     const [error, setError] = useState('')
@@ -14,13 +14,13 @@ function App() {
     const [newUsername, setNewUsername] = useState('')
     const [newPassword, setNewPassword] = useState('')
 
-    // NEW: Track which password is currently visible (null = none)
     const [revealedId, setRevealedId] = useState(null)
 
     // --- AUTHENTICATION ---
     const handleRegister = async () => {
         try {
-            await axios.post('http://localhost:8080/api/auth/register', { username, password })
+            // CHANGE 2: Use 'api' and remove 'http://localhost:8080'
+            await api.post('/api/auth/register', { username, password })
             setError('Registration successful! Please login.')
         } catch (err) {
             setError(err.response?.data?.message || 'Registration failed.')
@@ -29,8 +29,12 @@ function App() {
 
     const handleLogin = async () => {
         try {
-            const response = await axios.post('http://localhost:8080/api/auth/login', { username, password })
-            setToken(response.data.token)
+            const response = await api.post('/api/auth/login', { username, password })
+            const newToken = response.data.token;
+
+            setToken(newToken)
+            localStorage.setItem('token', newToken); // <--- Save it so the Interceptor can find it!
+
             setError('')
             setPassword('')
         } catch (err) {
@@ -46,24 +50,25 @@ function App() {
 
     const fetchSecrets = async () => {
         try {
-            const response = await axios.get('http://localhost:8080/api/credentials', {
-                headers: { Authorization: `Bearer ${token}` }
-            })
+            // CHANGE 3: Remove the 'headers' object entirely!
+            const response = await api.get('/api/credentials')
             setSecrets(response.data)
         } catch (err) {
             console.error("Failed to fetch secrets", err)
+            // Optional: If error is 403/401, logout the user
+            if (err.response && err.response.status === 403) setToken('');
         }
     }
 
     const handleAddSecret = async () => {
         try {
-            await axios.post('http://localhost:8080/api/credentials',
+            // CHANGE 3 (Again): No headers needed.
+            await api.post('/api/credentials',
                 {
                     url: newUrl,
                     username: newUsername,
-                    encryptedPassword: newPassword
-                },
-                { headers: { Authorization: `Bearer ${token}` } }
+                    password: newPassword // Note: Send as 'password', backend encrypts it
+                }
             )
             fetchSecrets()
             setNewUrl('')
@@ -77,15 +82,14 @@ function App() {
     const handleDelete = async (id) => {
         if (!window.confirm("Are you sure you want to delete this secret?")) return
         try {
-            await axios.delete(`http://localhost:8080/api/credentials/${id}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            })
+            await api.delete(`/api/credentials/${id}`)
             setSecrets(secrets.filter(secret => secret.id !== id))
         } catch (err) {
             alert("Failed to delete secret")
         }
     }
 
+    // ... (Rest of your JSX view remains exactly the same) ...
     // NEW: Toggle visibility of a specific password
     const toggleReveal = (id) => {
         if (revealedId === id) {
@@ -101,7 +105,10 @@ function App() {
             <div className="app-container">
                 <div className="header-row">
                     <h1>🔓 Vault Unlocked</h1>
-                    <button className="logout-btn" onClick={() => setToken('')}>Logout</button>
+                    <button className="logout-btn" onClick={() => {
+                        setToken('');
+                        localStorage.removeItem('token'); // Clear storage on logout
+                    }}>Logout</button>
                 </div>
 
                 {/* Form */}
@@ -138,7 +145,8 @@ function App() {
                                     <strong>Pass:</strong>
                                     {/* LOGIC: Is this card revealed? Show text. If not, show dots. */}
                                     <span className="password-text">
-                                        {revealedId === secret.id ? secret.encryptedPassword : "••••••••••••"}
+                                        {/* NOTE: Make sure your backend returns 'password' or 'encryptedPassword' */}
+                                        {revealedId === secret.id ? (secret.password || secret.encryptedPassword) : "••••••••••••"}
                                     </span>
                                     <button
                                         className="icon-btn"
