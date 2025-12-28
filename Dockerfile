@@ -8,7 +8,7 @@ COPY . .
 
 # Run Maven to compile the code and package it into a Jar
 # (We skip tests to speed up deployment)
-RUN mvn clean package -DskipTests
+RUN mvn clean package -Dmaven.test.skip=true
 
 # --- STAGE 2: RUN THE APP ---
 # Use a lightweight Java Runtime (JRE)
