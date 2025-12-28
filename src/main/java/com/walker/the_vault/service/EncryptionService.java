@@ -52,18 +52,4 @@ public class EncryptionService {
             throw new RuntimeException("Error while decrypting data", e);
         }
     }
-
-    @PostConstruct
-    public void init() {
-        System.out.println("============================================");
-        System.out.println("🔍 SECURITY DEBUG REPORT");
-        if (secretKey == null) {
-            System.out.println("❌ Key is NULL");
-        } else {
-            System.out.println("✅ Key Loaded. Length: " + secretKey.length());
-            System.out.println("🔑 First 3 chars: " + secretKey.substring(0, 3));
-            System.out.println("🔑 Last 3 chars: " + secretKey.substring(secretKey.length() - 3));
-        }
-        System.out.println("============================================");
-    }
 }

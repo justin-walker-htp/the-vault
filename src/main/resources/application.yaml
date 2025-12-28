@@ -30,3 +30,4 @@ application:
     # Syntax: ${ENV_VAR_NAME:default_value_only_for_dev}
     # Ideally, remove the default value in production.
     encryption-key: ${VAULT_ENCRYPTION_KEY}
+    jwt-secret: ${JWT_SECRET_KEY}
