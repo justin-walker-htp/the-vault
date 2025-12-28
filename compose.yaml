@@ -23,7 +23,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://vault-db:5432/the_vault
       SPRING_DATASOURCE_USERNAME: walker
       SPRING_DATASOURCE_PASSWORD: password
-      VAULT_ENCRYPTION_KEY: "ThisIsASecretKeyForTheVaultApp!!"
+      VAULT_ENCRYPTION_KEY: 'ThisIsASecretKeyForTheVaultApp!!'
     depends_on:
       - vault-db
 
